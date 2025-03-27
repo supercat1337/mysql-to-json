@@ -1,0 +1,39 @@
+{
+  "name": "@supercat1337/mysql-to-json",
+  "version": "1.0.0",
+  "description": "A simple tool to convert MySQL tables to JSON",
+  "license": "MIT",
+  "keywords": [
+    "mysql",
+    "json",
+    "converter"
+  ],
+  "author": "supercat1337",
+  "type": "module",
+  "bin": {
+    "mysql-to-json": "./bin/mysql-to-json.js"
+  },
+  "main": "./app/index.js",
+  "preferGlobal": true,
+  "scripts": {
+    "preinstall": "npm i -g esbuild && npm i -g rollup",
+    "test": "c8 ava",
+    "build": "npm run build_esm_bundle",
+    "build_esm": "rollup ./src/frontend/index.js --file ./dist/public/js/mysql-to-json.esm.js --format es",
+    "build_esm_bundle": "rollup ./src/frontend/index.js --file ./dist/public/js/main.js --format es -p ./node_modules/@rollup/plugin-node-resolve",
+    "build_esm_bundle_min": "esbuild --minify --bundle --platform=neutral --legal-comments=none ./src/frontend/index.js --outfile=./dist/public/js/main.min.js",
+    "create_types": "npx -p typescript tsc --project my.tsconfig.types.json",
+    "remove_type_files": "del /q *.d.ts *.d.ts.map && cd dist && del /s /q *.d.ts *.d.ts.map && cd .."
+  },
+  "dependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "body-parser": "^2.2.0",
+    "express": "^4.21.2",
+    "minimist": "^1.2.8",
+    "multer": "^1.4.5-lts.2",
+    "mysql2": "^3.14.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.14"
+  }
+}
