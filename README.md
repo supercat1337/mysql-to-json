@@ -11,7 +11,7 @@ A useful tool to get information about MySQL databases in JSON format.
 To install `mysql-to-json`, run the following command:
 
 ```
-npm install -g mysql-to-json
+npm install -g @supercat1337/mysql-to-json
 ```
 
 ## Usage
