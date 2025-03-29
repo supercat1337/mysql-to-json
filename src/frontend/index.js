@@ -199,8 +199,9 @@ if (database_list_area && table_list_area)
             if (target == active_element) return;
 
             if (active_element) active_element.classList.toggle("active");
-
             target.classList.toggle("active");
+
+            output_textarea.value = "";
             table_schema = await loadDatabaseSchema();
 
             let list = getTablesNamesFromDatabaseSchema(table_schema);
