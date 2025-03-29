@@ -1,6 +1,6 @@
 {
   "name": "@supercat1337/mysql-to-json",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple tool to convert MySQL tables to JSON",
   "license": "MIT",
   "keywords": [
