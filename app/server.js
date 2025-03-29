@@ -20,7 +20,8 @@ const __dirname = path.dirname(__filename); // get the name of the directory
  * If the method call fails, the server responds with an error message as JSON.
  *
  * @param {number} [port] - The port number to listen on.
- * @returns {Promise<void>}
+ * @returns {Promise<number>} - The port number the server is listening on.
+ * @throws {Error} - If the server cannot find an available port to listen on.
  */
 export async function startServer(port) {
     const app = express();
@@ -65,22 +66,13 @@ export async function startServer(port) {
         }
     });
 
-    /*
-    port = port || (await getFreePort(3000));
-
-    if (await isPortTaken(port)) {
-        console.error(`Port ${port} is already in use!`);
-        return;
-    }
-    */
-
     if (port) {
         app.listen(port);
     } else {
         port = 8080;
         let running = false;
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 100; i++) {
             port += i;
 
             try {
@@ -93,12 +85,11 @@ export async function startServer(port) {
         }
 
         if (!running) {
-            console.error(`Could not find an available port to listen on!`);
-            return;
+            throw new Error(`Could not find an available port to listen on!`);
         }
     }
 
-    console.log(`Server started at http://localhost:${port}`);
+    return port;
 }
 
 /**
