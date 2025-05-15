@@ -3,6 +3,7 @@
 import * as ServerApi from "./api.js";
 import { delegate_event, escapeHtml } from "./dom-helper.js";
 import { is_response_ok } from "./inet.js";
+import { convertColumnMetadataToJsCode } from "./tools.js";
 
 let table_schema = [];
 
@@ -10,7 +11,12 @@ const reload_db_list_button = document.getElementById("reload_db_list_button");
 const reload_table_list_button = document.getElementById(
     "reload_table_list_button"
 );
-const render_button = document.getElementById("render_button");
+const render_raw_json_button = document.getElementById(
+    "render_raw_json_button"
+);
+const render_js_objects_button = document.getElementById(
+    "render_js_objects_button"
+);
 
 const database_list_area = document.getElementById("database_list_area");
 const table_list_area = document.getElementById("table_list_area");
@@ -168,7 +174,7 @@ uncheck_all_button?.addEventListener("click", () => {
     });
 });
 
-render_button?.addEventListener("click", () => {
+render_raw_json_button?.addEventListener("click", () => {
     if (!output_textarea) return;
 
     let table_names = getCheckedCheckboxes();
@@ -184,6 +190,24 @@ render_button?.addEventListener("click", () => {
     }
 
     output_textarea.value = JSON.stringify(result_schema, null, "  ");
+});
+
+render_js_objects_button?.addEventListener("click", () => {
+    if (!output_textarea) return;
+
+    let table_names = getCheckedCheckboxes();
+
+    let result_schema = [];
+
+    for (let i = 0; i < table_schema.length; i++) {
+        if (!table_schema[i].TABLE_NAME) continue;
+
+        if (table_names.indexOf(table_schema[i].TABLE_NAME) != -1) {
+            result_schema.push(table_schema[i]);
+        }
+    }
+
+    output_textarea.value = convertColumnMetadataToJsCode(result_schema);
 });
 
 if (database_list_area && table_list_area)
@@ -208,3 +232,5 @@ if (database_list_area && table_list_area)
             table_list_area.innerHTML = createTableList(list);
         }
     );
+
+reload_db_list_button?.click();

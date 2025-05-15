@@ -15,7 +15,6 @@ import { openBrowser } from "./open-browser.js";
  * --db_host HOST    The host of the MySQL database. Default is localhost.
  * --user USER       The user of the MySQL database. Default is root.
  * --password PASS   The password of the MySQL database. Default is empty.
- * --open          Open the default browser with the URL.
  * --help            Show this help message.
  */
 export async function startApp() {
@@ -55,7 +54,6 @@ Options:
 --db_host HOST    The host of the MySQL database. Default is localhost.
 --user USER       The user of the MySQL database. Default is root.
 --password PASS   The password of the MySQL database. Default is empty.
---open          Open the default browser with the URL.
 --help            Show this help message.`
         );
         process.exit(0);
@@ -63,7 +61,5 @@ Options:
 
     let port = await startServer(argv.port);
     console.log(`Server started at http://localhost:${port}`);
-    if (argv.open) {
-        openBrowser(`http://localhost:${port}`);
-    }
+    openBrowser(`http://localhost:${port}`);
 }

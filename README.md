@@ -4,7 +4,7 @@ A useful tool to get information about MySQL databases in JSON format.
 
 ## Overview
 
-`mysql-to-json` is a command-line tool that connects to a MySQL database and retrieves information about the database in JSON format.
+`mysql-to-json` is a GUI tool that connects to a MySQL database and retrieves information about the database in JSON format. This tool helps you to easily explore and query the database.
 
 ## Installation
 
@@ -19,7 +19,7 @@ npm install -g @supercat1337/mysql-to-json
 To use `mysql-to-json`, run the following command:
 
 ```
-mysql-to-json [--port PORT] [--db_port PORT] [--db_host HOST] [--user USER] [--password PASS] [--open] [--help]
+mysql-to-json [--port PORT] [--db_port PORT] [--db_host HOST] [--user USER] [--password PASS] [--help]
 ```
 
 You can customize the tool's behavior by passing options as command-line arguments. The available options are:
@@ -31,7 +31,6 @@ You can customize the tool's behavior by passing options as command-line argumen
 -   `--db_host HOST`: The host of the MySQL database. Default is localhost.
 -   `--user USER`: The user of the MySQL database. Default is root.
 -   `--password PASS`: The password of the MySQL database. Default is empty.
--   `--open`: Open the default browser with the URL.
 -   `--help`: Show this help message.
 
 ## Example Usage
