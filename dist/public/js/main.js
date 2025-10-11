@@ -140,6 +140,7 @@ function is_response_ok(response) {
 
 // @ts-check
 
+
 /**
  * @typedef {Object} ApiResponse
  * @property {(false|object|string)} result
@@ -151,10 +152,10 @@ function is_response_ok(response) {
  * @async
  * @function
  * @param {Object} [params]
- * @returns {Promise<ApiResponse>}
- */
-async function database_list(params = {}) {
-    return request("database.list", params);
+* @returns {Promise<ApiResponse>}
+*/
+async function database_list(params = {}){
+	return request('database.list', params);
 }
 
 /**
@@ -162,10 +163,10 @@ async function database_list(params = {}) {
  * @function
  * @param {Object} params
  * @param {string} params.database_name
- * @returns {Promise<ApiResponse>}
- */
-async function tables_list(params) {
-    return request("tables.list", params);
+* @returns {Promise<ApiResponse>}
+*/
+async function tables_list(params){
+	return request('tables.list', params);
 }
 
 // @ts-check
@@ -930,55 +931,8 @@ function convertColumnMetadataToJsCode(data) {
     return output.join("\n");
 }
 
-/**
- *
- * @param {ColumnMetadataRaw[]} data
- * @returns {string}
- */
-function convertColumnMetadataToRawModule(data) {
-    if (data.length === 0) {
-        return "";
-    }
-
-    let output = [
-        `// @ts-check
-
-/**
- * Database column metadata object describing a table column's structure
- * @typedef {Object} ColumnMetadataRaw
- * @property {string} TABLE_CATALOG Table catalog (typically 'def' in MySQL)
- * @property {string} TABLE_SCHEMA Database/schema name containing the table
- * @property {string} TABLE_NAME Name of the table
- * @property {string} COLUMN_NAME Name of the column
- * @property {number} ORDINAL_POSITION Column position in table (1-based index)
- * @property {string|null} COLUMN_DEFAULT Default value for the column
- * @property {'YES'|'NO'} IS_NULLABLE Whether the column is nullable
- * @property {string} DATA_TYPE Column's data type (e.g., 'int', 'varchar')
- * @property {number|null} CHARACTER_MAXIMUM_LENGTH Maximum length for string types (in characters)
- * @property {number|null} CHARACTER_OCTET_LENGTH Maximum length for string types (in bytes)
- * @property {number|null} NUMERIC_PRECISION Precision for numeric types
- * @property {number|null} NUMERIC_SCALE Scale for numeric types
- * @property {number|null} DATETIME_PRECISION Precision for datetime types
- * @property {string|null} CHARACTER_SET_NAME Character set for string types
- * @property {string|null} COLLATION_NAME Collation for string types
- * @property {string} COLUMN_TYPE Full column type description (e.g., 'int(10) unsigned')
- * @property {'PRI'|'UNI'|'MUL'|''} COLUMN_KEY Column index type (PRI=primary key, UNI=unique, etc.)
- * @property {string} EXTRA Additional information (e.g., 'auto_increment')
- * @property {string} PRIVILEGES Comma-separated column privileges
- * @property {string} COLUMN_COMMENT Column comment
- * @property {'NEVER'|'ALWAYS'|string} IS_GENERATED Whether column value is generated
- * @property {string|null} GENERATION_EXPRESSION Expression for generated columns
- */
-
-/** @type {ColumnMetadataRaw[]} */
-export const columns = ${JSON.stringify(data, null, 4)};
-`,
-    ];
-
-    return output.join("\n");
-}
-
 // @ts-check
+
 
 let table_schema = [];
 
@@ -991,10 +945,6 @@ const render_raw_json_button = document.getElementById(
 );
 const render_js_objects_button = document.getElementById(
     "render_js_objects_button"
-);
-
-const render_raw_module_button = document.getElementById(
-    "render_raw_module_button"
 );
 
 const database_list_area = document.getElementById("database_list_area");
@@ -1187,23 +1137,6 @@ render_js_objects_button?.addEventListener("click", () => {
     }
 
     output_textarea.value = convertColumnMetadataToJsCode(result_schema);
-});
-
-render_raw_module_button?.addEventListener("click", () => {
-    if (!output_textarea) return;
-    let table_names = getCheckedCheckboxes();
-
-    let result_schema = [];
-
-    for (let i = 0; i < table_schema.length; i++) {
-        if (!table_schema[i].TABLE_NAME) continue;
-
-        if (table_names.indexOf(table_schema[i].TABLE_NAME) != -1) {
-            result_schema.push(table_schema[i]);
-        }
-    }
-
-    output_textarea.value = convertColumnMetadataToRawModule(result_schema);
 });
 
 if (database_list_area && table_list_area)

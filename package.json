@@ -1,6 +1,6 @@
 {
   "name": "@supercat1337/mysql-to-json",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A simple tool to convert MySQL tables to JSON",
   "license": "MIT",
   "keywords": [
@@ -16,7 +16,7 @@
   "main": "./app/index.js",
   "preferGlobal": true,
   "scripts": {
-    "preinstall": "npm i -g esbuild && npm i -g rollup",
+    "__preinstall": "npm i -g esbuild && npm i -g rollup",
     "test": "c8 ava",
     "build": "npm run build_esm_bundle",
     "build_esm": "rollup ./src/frontend/index.js --file ./dist/public/js/mysql-to-json.esm.js --format es",
@@ -27,7 +27,6 @@
     "start": "node ./bin/mysql-to-json.js"
   },
   "dependencies": {
-    "@rollup/plugin-node-resolve": "^16.0.1",
     "body-parser": "^2.2.0",
     "express": "^4.21.2",
     "minimist": "^1.2.8",
@@ -35,6 +34,7 @@
     "mysql2": "^3.14.0"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.1",
     "@types/node": "^22.13.14"
   }
 }
