@@ -1,6 +1,6 @@
 {
   "name": "@supercat1337/mysql-to-json",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A simple tool to convert MySQL tables to JSON",
   "license": "MIT",
   "keywords": [
@@ -27,6 +27,7 @@
     "start": "node ./bin/mysql-to-json.js"
   },
   "dependencies": {
+    "@supercat1337/mysql-schema-parser": "^1.0.2",
     "body-parser": "^2.2.0",
     "express": "^4.21.2",
     "minimist": "^1.2.8",

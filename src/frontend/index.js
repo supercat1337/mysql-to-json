@@ -2,9 +2,14 @@
 
 import * as ServerApi from "./api.js";
 import { delegate_event, escapeHtml } from "./dom-helper.js";
-import { is_response_ok } from "./inet.js";
-import { convertColumnMetadataToJsCode } from "./tools.js";
+import { convertColumnMetadataToJsClassCode, convertColumnMetadataToJsCode } from "./tools.js";
+import {
+    MySQLDatabase,
+    MySQLTable,
+    parseMySQLSchema,
+} from "@supercat1337/mysql-schema-parser";
 
+/** @type {import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]} */
 let table_schema = [];
 
 const reload_db_list_button = document.getElementById("reload_db_list_button");
@@ -16,6 +21,10 @@ const render_raw_json_button = document.getElementById(
 );
 const render_js_objects_button = document.getElementById(
     "render_js_objects_button"
+);
+
+const render_js_class_button = document.getElementById(
+    "render_js_class_button"
 );
 
 const database_list_area = document.getElementById("database_list_area");
@@ -58,11 +67,11 @@ function getActiveDataBase() {
 
 /**
  *
- * @param {Array} table_schema
+ * @param {import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]} table_schema
  * @returns {string[]}
  */
 function getTablesNamesFromDatabaseSchema(table_schema) {
-    /** @type {Set} */
+    /** @type {Set<string>} */
     let names = new Set();
 
     for (let i = 0; i < table_schema.length; i++) {
@@ -96,19 +105,27 @@ function createTableList(list) {
     return [head, body.join("\n"), tail].join("\n");
 }
 
+/**
+ * @returns {Promise<import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]>}
+ */
 async function loadDatabaseSchema() {
     if (!table_list_area) return [];
     let active_database = getActiveDataBase();
 
-    if (active_database == false) return;
+    if (active_database == false) return [];
 
     let response = await ServerApi.tables_list({
         database_name: active_database,
     });
-    if (!is_response_ok(response)) {
+    if (response.error) {
         alert(response.error);
         table_list_area.innerHTML = "";
-        return;
+        return [];
+    }
+
+    if (response.result == null)
+    {
+        return [];
     }
 
     return response.result;
@@ -134,9 +151,13 @@ reload_db_list_button?.addEventListener("click", async () => {
 
     let response = await ServerApi.database_list();
 
-    if (!is_response_ok(response)) {
+    if (response.error) {
         alert(response.error);
         database_list_area.innerHTML = "";
+        return;
+    }
+
+    if (response.result == null) {
         return;
     }
 
@@ -192,6 +213,24 @@ render_raw_json_button?.addEventListener("click", () => {
     output_textarea.value = JSON.stringify(result_schema, null, "  ");
 });
 
+render_js_class_button?.addEventListener("click", () => {
+    if (!output_textarea) return;
+
+    let table_names = getCheckedCheckboxes();
+
+    let result_schema = [];
+
+    for (let i = 0; i < table_schema.length; i++) {
+        if (!table_schema[i].TABLE_NAME) continue;
+
+        if (table_names.indexOf(table_schema[i].TABLE_NAME) != -1) {
+            result_schema.push(table_schema[i]);
+        }
+    }
+
+    output_textarea.value = convertColumnMetadataToJsClassCode(result_schema);
+});
+
 render_js_objects_button?.addEventListener("click", () => {
     if (!output_textarea) return;
 
@@ -215,7 +254,7 @@ if (database_list_area && table_list_area)
         "click",
         database_list_area,
         ".list-group-item",
-        async (event, target) => {
+        async (/** @type {MouseEvent} */ event, /** @type {HTMLElement} */ target) => {
             let active_element = database_list_area.querySelector(
                 ".list-group-item.active"
             );

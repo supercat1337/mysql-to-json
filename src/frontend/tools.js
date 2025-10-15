@@ -1,5 +1,7 @@
 // @ts-check
 
+import { hasStringDataType } from "./mysql_schema_helpers";
+
 /**
  * Database column metadata object describing a table column's structure
  * @typedef {Object} ColumnMetadataRaw
@@ -640,6 +642,11 @@ class MySQLTable {
     }
 }
 
+
+
+
+
+
 /**
  *
  * @param {ColumnMetadataRaw[]} data
@@ -711,4 +718,67 @@ function convertColumnMetadataToJsCode(data) {
     return output.join("\n");
 }
 
-export { convertColumnMetadataToJsCode };
+
+/**
+ *
+ * @param {ColumnMetadataRaw[]} data
+ * @returns {string}
+ */
+function convertColumnMetadataToJsClassCode(data) {
+    if (data.length === 0) {
+        return "";
+    }
+
+    let db = new MySQLDatabase(data[0].TABLE_SCHEMA);
+
+    for (let i = 0; i < data.length; i++) {
+        let jsonData = data[i];
+        let column = new MySQLTableColumn();
+        column.importFromRawData(jsonData);
+
+        let table = db.tables.get(column.tableName);
+        if (!table) {
+            table = new MySQLTable(column.tableName);
+            db.addTable(table);
+        }
+        table.addColumn(column);
+    }
+
+    let output = [
+        ``,
+    ];
+
+    for (let table of db.tables.values()) {
+        output.push(`export class ${upperCaseFirstLetter(table.tableName)}Item {`);
+        for (let column of table.getColumns()) {
+            output.push(`    /** @type {${hasStringDataType(column) ? "string" : "number"}} */`);
+            output.push(`    ${column.columnName};`);            
+        }
+
+        output.push(`    constructor(data) {`);
+        for (let column of table.getColumns()) {
+            if (hasStringDataType(column)) {
+                output.push(`        this.${column.columnName} = String(data.${column.columnName});`);
+            } else {
+                output.push(`        this.${column.columnName} = Number(data.${column.columnName});`);
+            }
+        }
+        output.push(`    }`);            
+
+        output.push(`};`);
+    }
+
+    return output.join("\n");
+}
+
+
+/**
+ * Returns a string with the first letter uppercased
+ * @param {string} str The string to modify
+ * @returns {string} The modified string
+ */
+function upperCaseFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export { convertColumnMetadataToJsCode, convertColumnMetadataToJsClassCode };

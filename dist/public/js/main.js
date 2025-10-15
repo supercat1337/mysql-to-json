@@ -128,16 +128,6 @@ function request(method, _params, callback) {
     }
 }
 
-/**
- * Checks if a response object is OK. A response object is considered OK if it is defined
- * and its error property is falsy.
- * @param {Object} response - The response object to check.
- * @returns {boolean} True if the response is OK, False otherwise.
- */
-function is_response_ok(response) {
-    return response && !response.error;
-}
-
 // @ts-check
 
 
@@ -152,7 +142,7 @@ function is_response_ok(response) {
  * @async
  * @function
  * @param {Object} [params]
-* @returns {Promise<ApiResponse>}
+* @returns {Promise<{result: string[], error:false}|{result: null,error: string}>}
 */
 async function database_list(params = {}){
 	return request('database.list', params);
@@ -163,7 +153,7 @@ async function database_list(params = {}){
  * @function
  * @param {Object} params
  * @param {string} params.database_name
-* @returns {Promise<ApiResponse>}
+* @returns {Promise<{result: import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[], error:false}|{result: null,error: string}>}
 */
 async function tables_list(params){
 	return request('tables.list', params);
@@ -219,6 +209,20 @@ function escapeHtml(unsafe) {
 }
 
 // @ts-check
+
+
+/**
+ * Checks if a column has a string data type
+ * @param {import("@supercat1337/mysql-schema-parser").MySQLTableColumn} column - The column to check
+ * @returns {boolean} - True if the column has a string data type, false otherwise
+ */
+function hasStringDataType(column) {
+    let dataType = column.dataType.toLowerCase();
+    return /char|varchar|tinytext|text|mediumtext|longtext/.test(dataType);
+}
+
+// @ts-check
+
 
 /**
  * Database column metadata object describing a table column's structure
@@ -860,6 +864,11 @@ class MySQLTable {
     }
 }
 
+
+
+
+
+
 /**
  *
  * @param {ColumnMetadataRaw[]} data
@@ -931,9 +940,73 @@ function convertColumnMetadataToJsCode(data) {
     return output.join("\n");
 }
 
+
+/**
+ *
+ * @param {ColumnMetadataRaw[]} data
+ * @returns {string}
+ */
+function convertColumnMetadataToJsClassCode(data) {
+    if (data.length === 0) {
+        return "";
+    }
+
+    let db = new MySQLDatabase(data[0].TABLE_SCHEMA);
+
+    for (let i = 0; i < data.length; i++) {
+        let jsonData = data[i];
+        let column = new MySQLTableColumn();
+        column.importFromRawData(jsonData);
+
+        let table = db.tables.get(column.tableName);
+        if (!table) {
+            table = new MySQLTable(column.tableName);
+            db.addTable(table);
+        }
+        table.addColumn(column);
+    }
+
+    let output = [
+        ``,
+    ];
+
+    for (let table of db.tables.values()) {
+        output.push(`export class ${upperCaseFirstLetter(table.tableName)}Item {`);
+        for (let column of table.getColumns()) {
+            output.push(`    /** @type {${hasStringDataType(column) ? "string" : "number"}} */`);
+            output.push(`    ${column.columnName};`);            
+        }
+
+        output.push(`    constructor(data) {`);
+        for (let column of table.getColumns()) {
+            if (hasStringDataType(column)) {
+                output.push(`        this.${column.columnName} = String(data.${column.columnName});`);
+            } else {
+                output.push(`        this.${column.columnName} = Number(data.${column.columnName});`);
+            }
+        }
+        output.push(`    }`);            
+
+        output.push(`};`);
+    }
+
+    return output.join("\n");
+}
+
+
+/**
+ * Returns a string with the first letter uppercased
+ * @param {string} str The string to modify
+ * @returns {string} The modified string
+ */
+function upperCaseFirstLetter(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 // @ts-check
 
 
+/** @type {import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]} */
 let table_schema = [];
 
 const reload_db_list_button = document.getElementById("reload_db_list_button");
@@ -945,6 +1018,10 @@ const render_raw_json_button = document.getElementById(
 );
 const render_js_objects_button = document.getElementById(
     "render_js_objects_button"
+);
+
+const render_js_class_button = document.getElementById(
+    "render_js_class_button"
 );
 
 const database_list_area = document.getElementById("database_list_area");
@@ -987,11 +1064,11 @@ function getActiveDataBase() {
 
 /**
  *
- * @param {Array} table_schema
+ * @param {import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]} table_schema
  * @returns {string[]}
  */
 function getTablesNamesFromDatabaseSchema(table_schema) {
-    /** @type {Set} */
+    /** @type {Set<string>} */
     let names = new Set();
 
     for (let i = 0; i < table_schema.length; i++) {
@@ -1025,19 +1102,27 @@ function createTableList(list) {
     return [head, body.join("\n"), tail].join("\n");
 }
 
+/**
+ * @returns {Promise<import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]>}
+ */
 async function loadDatabaseSchema() {
     if (!table_list_area) return [];
     let active_database = getActiveDataBase();
 
-    if (active_database == false) return;
+    if (active_database == false) return [];
 
     let response = await tables_list({
         database_name: active_database,
     });
-    if (!is_response_ok(response)) {
+    if (response.error) {
         alert(response.error);
         table_list_area.innerHTML = "";
-        return;
+        return [];
+    }
+
+    if (response.result == null)
+    {
+        return [];
     }
 
     return response.result;
@@ -1063,9 +1148,13 @@ reload_db_list_button?.addEventListener("click", async () => {
 
     let response = await database_list();
 
-    if (!is_response_ok(response)) {
+    if (response.error) {
         alert(response.error);
         database_list_area.innerHTML = "";
+        return;
+    }
+
+    if (response.result == null) {
         return;
     }
 
@@ -1121,6 +1210,24 @@ render_raw_json_button?.addEventListener("click", () => {
     output_textarea.value = JSON.stringify(result_schema, null, "  ");
 });
 
+render_js_class_button?.addEventListener("click", () => {
+    if (!output_textarea) return;
+
+    let table_names = getCheckedCheckboxes();
+
+    let result_schema = [];
+
+    for (let i = 0; i < table_schema.length; i++) {
+        if (!table_schema[i].TABLE_NAME) continue;
+
+        if (table_names.indexOf(table_schema[i].TABLE_NAME) != -1) {
+            result_schema.push(table_schema[i]);
+        }
+    }
+
+    output_textarea.value = convertColumnMetadataToJsClassCode(result_schema);
+});
+
 render_js_objects_button?.addEventListener("click", () => {
     if (!output_textarea) return;
 
@@ -1144,7 +1251,7 @@ if (database_list_area && table_list_area)
         "click",
         database_list_area,
         ".list-group-item",
-        async (event, target) => {
+        async (/** @type {MouseEvent} */ event, /** @type {HTMLElement} */ target) => {
             let active_element = database_list_area.querySelector(
                 ".list-group-item.active"
             );
