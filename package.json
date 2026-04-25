@@ -16,7 +16,6 @@
   "main": "./app/index.js",
   "preferGlobal": true,
   "scripts": {
-    "__preinstall": "npm i -g esbuild && npm i -g rollup",
     "test": "c8 ava",
     "build": "npm run build_esm_bundle",
     "build_esm": "rollup ./src/frontend/index.js --file ./dist/public/js/mysql-to-json.esm.js --format es",
