@@ -1,9 +1,9 @@
 // @ts-check
 
-import minimist from "minimist";
-import { setCredentials } from "./db.js";
-import { startServer } from "./server.js";
-import { openBrowser } from "./open-browser.js";
+import minimist from 'minimist';
+import { setCredentials } from './db.js';
+import { startServer } from './server.js';
+import { openBrowser } from './open-browser.js';
 
 /**
  * Initializes the application by parsing command line arguments,
@@ -24,9 +24,9 @@ export async function startApp() {
         /** @type {number|undefined} */
         port: undefined,
         db_port: 3306,
-        db_host: "localhost",
-        user: "root",
-        password: "",
+        db_host: 'localhost',
+        user: 'root',
+        password: '',
         open: false,
         help: false,
     };

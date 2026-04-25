@@ -1,52 +1,339 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>MySQL Schema & Stats Explorer</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Get database info</title>
-  <link href="css/bootstrap.min.css" rel="stylesheet">
-</head>
+            body {
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    'Segoe UI',
+                    Roboto,
+                    Helvetica,
+                    Arial,
+                    sans-serif;
+                background: linear-gradient(135deg, #f5f7fc 0%, #e9eef5 100%);
+                min-height: 100vh;
+                padding: 2rem 1.5rem;
+                color: #1a2c3e;
+            }
 
-<body class="container">
+            .app-container {
+                max-width: 1400px;
+                margin: 0 auto;
+            }
 
-  <div class="row mt-5">
-    <div class="col">
-      <h3>Databases <button type="button" class="btn btn-outline-secondary  ms-3"
-          id="reload_db_list_button">Reload</button></h3>
-    </div>
-    <div class="col">
-      <h3>Tables
-        <button type="button" class="btn btn-outline-secondary ms-3" id="reload_table_list_button">Reload</button>
-        <button type="button" class="btn btn-outline-secondary ms-3" id="check_all_button">Check all</button>
-        <button type="button" class="btn btn-outline-secondary" id="uncheck_all_button">Uncheck all</button>
+            /* Header */
+            .header {
+                margin-bottom: 2rem;
+                text-align: center;
+            }
 
-      </h3>
-    </div>
-  </div>
-  <div class="row mt-2" style="min-height: 25vh; max-height: 50vh;">
-    <div class="col" style="min-height: 25vh; max-height: 50vh; overflow: auto;">
-      <div id="database_list_area">
+            .header h1 {
+                font-size: 2rem;
+                font-weight: 600;
+                background: linear-gradient(120deg, #1e466e, #2b6a9e);
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                letter-spacing: -0.01em;
+            }
 
-      </div>
-    </div>
-    <div class="col" style="min-height: 25vh; max-height: 50vh; overflow: auto;">
-      <div id="table_list_area">
+            .header p {
+                color: #4a627a;
+                margin-top: 0.5rem;
+            }
 
-      </div>
+            /* Card style */
+            .card {
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(2px);
+                border-radius: 1.5rem;
+                box-shadow:
+                    0 8px 20px rgba(0, 0, 0, 0.05),
+                    0 2px 4px rgba(0, 0, 0, 0.02);
+                padding: 1.25rem 1.5rem;
+                margin-bottom: 1.75rem;
+                transition: box-shadow 0.2s ease;
+            }
 
-    </div>
-  </div>
-  <h3 class="mt-5">Output
-    <button type="button" class="btn btn-outline-secondary ms-3" id="render_raw_json_button">Render raw JSON</button>
-    <button type="button" class="btn btn-outline-secondary ms-3" id="render_js_class_button">Render js class</button>
-    <button type="button" class="btn btn-outline-secondary ms-3" id="render_js_objects_button">Render js
-      objects</button>
-  </h3>
-  <div class="row mt-3" style="min-height: 25vh;">
-    <textarea class="form-control" id="output_textarea"></textarea>
-  </div>
-  <script type="module" src="js/main.js"></script>
-</body>
+            .card:hover {
+                box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+            }
 
+            .card-title {
+                font-size: 1.3rem;
+                font-weight: 600;
+                margin-bottom: 1rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 0.75rem;
+                border-bottom: 2px solid #e2e8f0;
+                padding-bottom: 0.5rem;
+            }
+
+            /* Two column layout */
+            .two-columns {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.75rem;
+            }
+
+            @media (max-width: 860px) {
+                .two-columns {
+                    grid-template-columns: 1fr;
+                    gap: 1.5rem;
+                }
+                body {
+                    padding: 1rem;
+                }
+            }
+
+            /* Scrollable lists */
+            .scrollable-list {
+                max-height: 50vh;
+                overflow-y: auto;
+                border: 1px solid #e2edf2;
+                border-radius: 1rem;
+                background: #ffffffcc;
+                padding: 0.5rem;
+            }
+
+            .list-group-item {
+                display: block;
+                padding: 0.6rem 1rem;
+                margin: 0.25rem 0;
+                border-radius: 0.75rem;
+                background: white;
+                transition: all 0.15s;
+                cursor: pointer;
+                text-decoration: none;
+                color: #1f3a4b;
+                border: 1px solid transparent;
+            }
+
+            .list-group-item:hover {
+                background: #eef2ff;
+                border-color: #cbdff2;
+            }
+
+            .list-group-item.active {
+                background: #2c6e9e;
+                color: white;
+                font-weight: 500;
+                border-color: #2c6e9e;
+            }
+
+            /* Checkbox list */
+            .form-check {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 0.6rem 0.8rem;
+                margin: 0.25rem 0;
+                border-radius: 0.75rem;
+                background: white;
+                transition: background 0.1s;
+            }
+
+            .form-check:hover {
+                background: #f8fafc;
+            }
+
+            .form-check-input {
+                width: 1.2rem;
+                height: 1.2rem;
+                cursor: pointer;
+                accent-color: #2c6e9e;
+            }
+
+            .form-check-label {
+                font-weight: 500;
+                color: #1f3a4b;
+                cursor: pointer;
+                flex: 1;
+            }
+
+            /* Buttons */
+            .button-group {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.6rem;
+                margin-top: 0.25rem;
+            }
+
+            .btn {
+                border: none;
+                background: #edf2f7;
+                padding: 0.5rem 1rem;
+                border-radius: 2rem;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-size: 0.85rem;
+                color: #1f3a4b;
+            }
+
+            .btn-primary {
+                background: #2c6e9e;
+                color: white;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            }
+
+            .btn-primary:hover {
+                background: #1e567e;
+                transform: translateY(-1px);
+            }
+
+            .btn-outline {
+                background: transparent;
+                border: 1px solid #cbd5e1;
+            }
+
+            .btn-outline:hover {
+                background: #eef2ff;
+                border-color: #94a3b8;
+            }
+
+            .btn-sm {
+                font-size: 0.75rem;
+                padding: 0.35rem 0.8rem;
+            }
+
+            /* Textareas */
+            .output-area {
+                width: 100%;
+                min-height: 280px;
+                font-family: 'SF Mono', 'Fira Code', monospace;
+                font-size: 0.85rem;
+                background: #0f172a;
+                color: #e2e8f0;
+                border: none;
+                border-radius: 1rem;
+                padding: 1rem;
+                resize: vertical;
+                line-height: 1.5;
+            }
+
+            .output-label {
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+            }
+
+            footer {
+                text-align: center;
+                margin-top: 2rem;
+                font-size: 0.8rem;
+                color: #6c86a3;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app-container">
+            <div class="header">
+                <h1>📊 MySQL Schema & Index Explorer</h1>
+                <p>Inspect database columns and detailed index statistics</p>
+            </div>
+
+            <!-- Databases & Tables (two columns) -->
+            <div class="two-columns">
+                <!-- Databases card -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>🗄️ Databases</span>
+                        <button class="btn btn-sm btn-primary" id="reload_db_list_button">
+                            ⟳ Reload
+                        </button>
+                    </div>
+                    <div class="scrollable-list" id="database_list_area">
+                        <div class="list-group-item" style="color: #8899aa">
+                            Click reload to load databases
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tables card -->
+                <div class="card">
+                    <div class="card-title">
+                        <span>📋 Tables</span>
+                        <div class="button-group">
+                            <button class="btn btn-sm btn-outline" id="reload_table_list_button">
+                                ⟳ Reload
+                            </button>
+                            <button class="btn btn-sm btn-outline" id="check_all_button">
+                                ✓ All
+                            </button>
+                            <button class="btn btn-sm btn-outline" id="uncheck_all_button">
+                                ✗ None
+                            </button>
+                        </div>
+                    </div>
+                    <div class="scrollable-list" id="table_list_area">
+                        <div style="padding: 1rem; text-align: center; color: #6f8faa">
+                            Select a database first
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schema Output (original) -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📄 Column Schema (JSON / JS)</span>
+                    <div class="button-group">
+                        <button class="btn btn-outline" id="render_raw_json_button">
+                            🗂️ Raw JSON
+                        </button>
+                        <button class="btn btn-outline" id="render_js_objects_button">
+                            🧩 JS Objects
+                        </button>
+                        <button class="btn btn-outline" id="render_js_class_button">
+                            🏗️ JS Class
+                        </button>
+                    </div>
+                </div>
+                <textarea
+                    id="output_textarea"
+                    class="output-area"
+                    readonly
+                    placeholder="Schema output will appear here..."
+                ></textarea>
+            </div>
+
+            <!-- Statistics Output (new: index stats) -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🔍 Index Statistics (detailed)</span>
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="render_stats_button">
+                            📈 Fetch Index Stats for checked tables
+                        </button>
+                    </div>
+                </div>
+                <textarea
+                    id="stats_output_textarea"
+                    class="output-area"
+                    readonly
+                    placeholder="Click 'Fetch Index Stats' to see index information (uniqueness, columns, cardinality, etc.)"
+                ></textarea>
+            </div>
+
+            <footer>🧩 Modern UI · Full index metadata from INFORMATION_SCHEMA.STATISTICS</footer>
+        </div>
+
+        <script type="module" src="js/main.js"></script>
+    </body>
 </html>

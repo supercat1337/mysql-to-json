@@ -18,7 +18,7 @@ export function delegate_event(
         var target;
 
         if (event.target instanceof Element)
-            if (typeof event.target.matches != "undefined") {
+            if (typeof event.target.matches != 'undefined') {
                 target = event.target;
 
                 if (event.target.matches(target_element_selector)) {
@@ -40,9 +40,9 @@ export function delegate_event(
  */
 export function escapeHtml(unsafe) {
     return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }

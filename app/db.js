@@ -1,10 +1,10 @@
 // @ts-check
 
 export const dbUserCredentials = {
-    host: "localhost",
-    user: "root",
+    host: 'localhost',
+    user: 'root',
     port: 3306,
-    password: "",
+    password: '',
 };
 
 /**

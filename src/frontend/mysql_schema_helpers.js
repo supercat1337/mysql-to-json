@@ -6,13 +6,13 @@
  * @returns {"bit"|"integer"|"string"|"float"} The column type
  */
 export function detectFieldTypeByColumnType(column) {
-    if (hasBooleanDataType(column)) return "bit";
-    if (hasIntegerDataType(column)) return "integer";
-    if (hasStringDataType(column)) return "string";
-    if (hasFloatDataType(column)) return "float";
+    if (hasBooleanDataType(column)) return 'bit';
+    if (hasIntegerDataType(column)) return 'integer';
+    if (hasStringDataType(column)) return 'string';
+    if (hasFloatDataType(column)) return 'float';
 
     //throw new Error("Unknown column type");
-    return "string";
+    return 'string';
 }
 
 /**
@@ -24,7 +24,7 @@ export function hasIntegerDataType(column) {
     // INTEGER, INT, SMALLINT, TINYINT, MEDIUMINT, BIGINT
     let dataType = column.dataType.toLowerCase();
 
-    if (/bigint/.test(dataType)) throw new Error("bigint not supported");
+    if (/bigint/.test(dataType)) throw new Error('bigint not supported');
 
     return /integer|int|smallint|tinyint|mediumint|bigint/.test(dataType);
 }
@@ -36,12 +36,12 @@ export function hasIntegerDataType(column) {
  */
 export function hasBooleanDataType(column) {
     let dataType = column.dataType.toLowerCase();
-    if (column.columnType.toLowerCase() === "tinyint(1)") return true;
+    if (column.columnType.toLowerCase() === 'tinyint(1)') return true;
     if (hasIntegerDataType(column)) {
         let columnName = column.columnName.toLowerCase();
         return /^is_|_is_|^has_/.test(columnName);
     }
-    return dataType === "boolean";
+    return dataType === 'boolean';
 }
 
 /**

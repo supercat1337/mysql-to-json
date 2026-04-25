@@ -11,7 +11,7 @@
 const uid = function () {
     return (
         (Date.now() - 1640984400000).toString(36) +
-        "." +
+        '.' +
         (window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295)
             .toString(36)
             .slice(2, 16)
@@ -33,14 +33,14 @@ function createFormData(method, _params) {
 
     var params = Object.entries(_params);
 
-    if (params.length == 0) params = [["value", 1]];
+    if (params.length == 0) params = [['value', 1]];
 
     var formData = new FormData();
 
-    formData.append("method", method);
+    formData.append('method', method);
 
     for (var i = 0; i < params.length; i++) {
-        formData.append("params[" + params[i][0] + "]", params[i][1]);
+        formData.append('params[' + params[i][0] + ']', params[i][1]);
     }
 
     return formData;
@@ -73,7 +73,7 @@ function request_prepare(response_callback) {
             }
         } else {
             if (this.status == 0) {
-                response_callback(false, "No Internet");
+                response_callback(false, 'No Internet');
             } else {
                 let error_text = `${this.responseURL} ${this.status} (${this.statusText})`;
                 response_callback(false, error_text);
@@ -94,8 +94,8 @@ function request_prepare(response_callback) {
  * @param {FormData} formData - The FormData object containing the data to be sent with the request.
  */
 function request_send(req, formData) {
-    const url = "api?random=" + uid();
-    req.open("POST", url, true);
+    const url = 'api?random=' + uid();
+    req.open('POST', url, true);
 
     try {
         req.send(formData);
@@ -130,7 +130,6 @@ function request(method, _params, callback) {
 
 // @ts-check
 
-
 /**
  * @typedef {Object} ApiResponse
  * @property {(false|object|string)} result
@@ -139,24 +138,30 @@ function request(method, _params, callback) {
  */
 
 /**
- * @async
- * @function
  * @param {Object} [params]
-* @returns {Promise<{result: string[], error:false}|{result: null,error: string}>}
-*/
-async function database_list(params = {}){
-	return request('database.list', params);
+ * @returns {Promise<{result: string[], error:false}|{result: null,error: string}>}
+ */
+async function database_list(params = {}) {
+    return request('database.list', params);
 }
 
 /**
- * @async
- * @function
  * @param {Object} params
  * @param {string} params.database_name
-* @returns {Promise<{result: import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[], error:false}|{result: null,error: string}>}
-*/
-async function tables_list(params){
-	return request('tables.list', params);
+ * @returns {Promise<{result: import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[], error:false}|{result: null,error: string}>}
+ */
+async function tables_list(params) {
+    return request('tables.list', params);
+}
+
+/**
+ * @param {Object} params
+ * @param {string} params.database_name
+ * @param {string[]} [params.table_names]
+ * @returns {Promise<{result: any[], error:false}|{result: null,error: string}>}
+ */
+async function indexes_list(params) {
+    return request('indexes.list', params);
 }
 
 // @ts-check
@@ -179,7 +184,7 @@ function delegate_event(
         var target;
 
         if (event.target instanceof Element)
-            if (typeof event.target.matches != "undefined") {
+            if (typeof event.target.matches != 'undefined') {
                 target = event.target;
 
                 if (event.target.matches(target_element_selector)) {
@@ -201,11 +206,11 @@ function delegate_event(
  */
 function escapeHtml(unsafe) {
     return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 // @ts-check
@@ -285,24 +290,24 @@ function hasStringDataType(column) {
  * @throws {Error} If the object is invalid
  */
 function assertColumnMetadataRaw(obj) {
-    if (typeof obj !== "object" || obj === null) {
-        throw new Error("Input must be a non-null object");
+    if (typeof obj !== 'object' || obj === null) {
+        throw new Error('Input must be a non-null object');
     }
 
     const requiredKeys = [
-        "TABLE_CATALOG",
-        "TABLE_SCHEMA",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "ORDINAL_POSITION",
-        "IS_NULLABLE",
-        "DATA_TYPE",
-        "COLUMN_TYPE",
-        "COLUMN_KEY",
-        "EXTRA",
-        "PRIVILEGES",
-        "COLUMN_COMMENT",
-        "IS_GENERATED",
+        'TABLE_CATALOG',
+        'TABLE_SCHEMA',
+        'TABLE_NAME',
+        'COLUMN_NAME',
+        'ORDINAL_POSITION',
+        'IS_NULLABLE',
+        'DATA_TYPE',
+        'COLUMN_TYPE',
+        'COLUMN_KEY',
+        'EXTRA',
+        'PRIVILEGES',
+        'COLUMN_COMMENT',
+        'IS_GENERATED',
     ];
 
     for (const key of requiredKeys) {
@@ -312,79 +317,48 @@ function assertColumnMetadataRaw(obj) {
     }
 
     const validators = {
-        TABLE_CATALOG: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        TABLE_SCHEMA: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        TABLE_NAME: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        COLUMN_NAME: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        ORDINAL_POSITION: (val) =>
-            typeof val === "number" || `Expected number, got ${typeof val}`,
-        COLUMN_DEFAULT: (val) =>
-            val === null ||
-            typeof val === "string" ||
-            `Expected string or null, got ${typeof val}`,
-        IS_NULLABLE: (val) =>
-            val === "YES" ||
-            val === "NO" ||
-            `Expected 'YES' or 'NO', got ${val}`,
-        DATA_TYPE: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        CHARACTER_MAXIMUM_LENGTH: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        CHARACTER_OCTET_LENGTH: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        NUMERIC_PRECISION: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        NUMERIC_SCALE: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        DATETIME_PRECISION: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        CHARACTER_SET_NAME: (val) =>
-            val === null ||
-            typeof val === "string" ||
-            `Expected string or null, got ${typeof val}`,
-        COLLATION_NAME: (val) =>
-            val === null ||
-            typeof val === "string" ||
-            `Expected string or null, got ${typeof val}`,
-        COLUMN_TYPE: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        COLUMN_KEY: (val) =>
-            ["PRI", "UNI", "MUL", ""].includes(val) ||
+        TABLE_CATALOG: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        TABLE_SCHEMA: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        TABLE_NAME: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        COLUMN_NAME: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        ORDINAL_POSITION: val => typeof val === 'number' || `Expected number, got ${typeof val}`,
+        COLUMN_DEFAULT: val =>
+            val === null || typeof val === 'string' || `Expected string or null, got ${typeof val}`,
+        IS_NULLABLE: val => val === 'YES' || val === 'NO' || `Expected 'YES' or 'NO', got ${val}`,
+        DATA_TYPE: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        CHARACTER_MAXIMUM_LENGTH: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        CHARACTER_OCTET_LENGTH: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        NUMERIC_PRECISION: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        NUMERIC_SCALE: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        DATETIME_PRECISION: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        CHARACTER_SET_NAME: val =>
+            val === null || typeof val === 'string' || `Expected string or null, got ${typeof val}`,
+        COLLATION_NAME: val =>
+            val === null || typeof val === 'string' || `Expected string or null, got ${typeof val}`,
+        COLUMN_TYPE: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        COLUMN_KEY: val =>
+            ['PRI', 'UNI', 'MUL', ''].includes(val) ||
             `Expected 'PRI', 'UNI', 'MUL' or empty string, got ${val}`,
-        EXTRA: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        PRIVILEGES: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        COLUMN_COMMENT: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        IS_GENERATED: (val) =>
-            val === "NEVER" ||
-            val === "ALWAYS" ||
-            typeof val === "string" ||
+        EXTRA: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        PRIVILEGES: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        COLUMN_COMMENT: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        IS_GENERATED: val =>
+            val === 'NEVER' ||
+            val === 'ALWAYS' ||
+            typeof val === 'string' ||
             `Expected 'NEVER', 'ALWAYS' or string, got ${val}`,
-        GENERATION_EXPRESSION: (val) =>
-            val === null ||
-            typeof val === "string" ||
-            `Expected string or null, got ${typeof val}`,
+        GENERATION_EXPRESSION: val =>
+            val === null || typeof val === 'string' || `Expected string or null, got ${typeof val}`,
     };
 
     for (const [key, validator] of Object.entries(validators)) {
         const validationResult = validator(obj[key]);
-        if (typeof validationResult === "string") {
+        if (typeof validationResult === 'string') {
             throw new Error(`Invalid ${key}: ${validationResult}`);
         }
     }
@@ -595,7 +569,7 @@ class MySQLTableColumn {
      * @returns {boolean}
      */
     isPrimaryKey() {
-        return this.columnKey === "PRI";
+        return this.columnKey === 'PRI';
     }
 
     /**
@@ -603,7 +577,7 @@ class MySQLTableColumn {
      * @returns {boolean}
      */
     allowsNull() {
-        return this.isNullable === "YES";
+        return this.isNullable === 'YES';
     }
 
     /**
@@ -611,7 +585,7 @@ class MySQLTableColumn {
      * @returns {boolean}
      */
     isAutoIncrement() {
-        return this.extra.includes("auto_increment");
+        return this.extra.includes('auto_increment');
     }
 
     /**
@@ -621,9 +595,9 @@ class MySQLTableColumn {
     getColumnDefinition() {
         return (
             `${this.columnName} ${this.columnType}` +
-            (this.isPrimaryKey() ? " PRIMARY KEY" : "") +
-            (this.isAutoIncrement() ? " AUTO_INCREMENT" : "") +
-            (this.allowsNull() ? "" : " NOT NULL")
+            (this.isPrimaryKey() ? ' PRIMARY KEY' : '') +
+            (this.isAutoIncrement() ? ' AUTO_INCREMENT' : '') +
+            (this.allowsNull() ? '' : ' NOT NULL')
         );
     }
 
@@ -745,7 +719,7 @@ class MySQLTable {
 
             // NOT NULL
             if (!column.allowsNull()) {
-                definition += " NOT NULL";
+                definition += ' NOT NULL';
             }
 
             // DEFAULT
@@ -756,14 +730,12 @@ class MySQLTable {
 
             // AUTO_INCREMENT
             if (column.isAutoIncrement()) {
-                definition += " AUTO_INCREMENT";
+                definition += ' AUTO_INCREMENT';
             }
 
             // COMMENT
             if (column.columnComment) {
-                definition += ` COMMENT '${this.#escapeString(
-                    column.columnComment
-                )}'`;
+                definition += ` COMMENT '${this.#escapeString(column.columnComment)}'`;
             }
 
             columnDefinitions.push(definition);
@@ -771,32 +743,29 @@ class MySQLTable {
             // Индексы
             if (column.isPrimaryKey()) {
                 primaryKeys.push(`\`${column.columnName}\``);
-            } else if (column.columnKey === "UNI") {
+            } else if (column.columnKey === 'UNI') {
                 uniqueKeys.push(`\`${column.columnName}\``);
-            } else if (column.columnKey === "MUL") {
+            } else if (column.columnKey === 'MUL') {
                 indexes.push(`\`${column.columnName}\``);
             }
         }
 
         // Добавляем PRIMARY KEY
         if (primaryKeys.length > 0) {
-            columnDefinitions.push(`PRIMARY KEY (${primaryKeys.join(", ")})`);
+            columnDefinitions.push(`PRIMARY KEY (${primaryKeys.join(', ')})`);
         }
 
         // Добавляем UNIQUE ключи
         for (const uniqueCol of uniqueKeys) {
             columnDefinitions.push(
-                `UNIQUE KEY \`${uniqueCol.replace(
-                    /`/g,
-                    ""
-                )}_unique\` (${uniqueCol})`
+                `UNIQUE KEY \`${uniqueCol.replace(/`/g, '')}_unique\` (${uniqueCol})`
             );
         }
 
         // Собираем полный запрос
         let query = `CREATE TABLE \`${this.tableName}\` (\n  `;
-        query += columnDefinitions.join(",\n  ");
-        query += "\n)";
+        query += columnDefinitions.join(',\n  ');
+        query += '\n)';
 
         // Добавляем ENGINE если указан
         if (options.engine) {
@@ -804,12 +773,8 @@ class MySQLTable {
         }
 
         // Добавляем CHARSET и COLLATION
-        const charset =
-            options.charset || columns[0].characterSetName || "utf8mb4";
-        const collation =
-            options.collation ||
-            columns[0].collationName ||
-            "utf8mb4_unicode_ci";
+        const charset = options.charset || columns[0].characterSetName || 'utf8mb4';
+        const collation = options.collation || columns[0].collationName || 'utf8mb4_unicode_ci';
         query += ` DEFAULT CHARSET=${charset} COLLATE=${collation}`;
 
         // Добавляем COMMENT таблицы
@@ -817,7 +782,7 @@ class MySQLTable {
             query += ` COMMENT='${this.#escapeString(options.comment)}'`;
         }
 
-        return query + ";";
+        return query + ';';
     }
 
     /**
@@ -826,27 +791,23 @@ class MySQLTable {
      * @returns {string}
      */
     #formatDefaultValue(column) {
-        if (column.columnDefault === null) return "NULL";
+        if (column.columnDefault === null) return 'NULL';
 
         // Для строковых типов
-        if (
-            ["char", "varchar", "text", "enum", "set"].includes(
-                column.dataType.toLowerCase()
-            )
-        ) {
+        if (['char', 'varchar', 'text', 'enum', 'set'].includes(column.dataType.toLowerCase())) {
             return `'${this.#escapeString(column.columnDefault)}'`;
         }
 
         // Для временных типов
         if (
-            ["timestamp", "datetime"].includes(column.dataType.toLowerCase()) &&
-            column.columnDefault.toUpperCase() === "CURRENT_TIMESTAMP"
+            ['timestamp', 'datetime'].includes(column.dataType.toLowerCase()) &&
+            column.columnDefault.toUpperCase() === 'CURRENT_TIMESTAMP'
         ) {
-            return "CURRENT_TIMESTAMP";
+            return 'CURRENT_TIMESTAMP';
         }
 
         // Для бинарных данных
-        if (["blob", "binary"].includes(column.dataType.toLowerCase())) {
+        if (['blob', 'binary'].includes(column.dataType.toLowerCase())) {
             return `x'${column.columnDefault}'`;
         }
 
@@ -860,14 +821,9 @@ class MySQLTable {
      * @returns {string}
      */
     #escapeString(str) {
-        return str.replace(/'/g, "''").replace(/\\/g, "\\\\");
+        return str.replace(/'/g, "''").replace(/\\/g, '\\\\');
     }
 }
-
-
-
-
-
 
 /**
  *
@@ -876,7 +832,7 @@ class MySQLTable {
  */
 function convertColumnMetadataToJsCode(data) {
     if (data.length === 0) {
-        return "";
+        return '';
     }
 
     let db = new MySQLDatabase(data[0].TABLE_SCHEMA);
@@ -937,9 +893,17 @@ function convertColumnMetadataToJsCode(data) {
         output.push(`};`);
     }
 
-    return output.join("\n");
+    return output.join('\n');
 }
 
+/**
+ *
+ * @param {string} tableName
+ */
+function convertTableNameToJsClassName(tableName) {
+    let result = tableName.split(/_+/g).map(path => upperCaseFirstLetter(path)).join("");
+    return result;
+}
 
 /**
  *
@@ -948,7 +912,7 @@ function convertColumnMetadataToJsCode(data) {
  */
 function convertColumnMetadataToJsClassCode(data) {
     if (data.length === 0) {
-        return "";
+        return '';
     }
 
     let db = new MySQLDatabase(data[0].TABLE_SCHEMA);
@@ -966,33 +930,34 @@ function convertColumnMetadataToJsClassCode(data) {
         table.addColumn(column);
     }
 
-    let output = [
-        ``,
-    ];
+    let output = [``];
 
     for (let table of db.tables.values()) {
-        output.push(`export class ${upperCaseFirstLetter(table.tableName)}Item {`);
+        output.push(`export class ${convertTableNameToJsClassName(table.tableName)}Item {`);
         for (let column of table.getColumns()) {
-            output.push(`    /** @type {${hasStringDataType(column) ? "string" : "number"}} */`);
-            output.push(`    ${column.columnName};`);            
+            output.push(`    /** @type {${hasStringDataType(column) ? 'string' : 'number'}} */`);
+            output.push(`    ${column.columnName};`);
         }
 
         output.push(`    constructor(data) {`);
         for (let column of table.getColumns()) {
             if (hasStringDataType(column)) {
-                output.push(`        this.${column.columnName} = String(data.${column.columnName});`);
+                output.push(
+                    `        this.${column.columnName} = String(data.${column.columnName});`
+                );
             } else {
-                output.push(`        this.${column.columnName} = Number(data.${column.columnName});`);
+                output.push(
+                    `        this.${column.columnName} = Number(data.${column.columnName});`
+                );
             }
         }
-        output.push(`    }`);            
+        output.push(`    }`);
 
         output.push(`};`);
     }
 
-    return output.join("\n");
+    return output.join('\n');
 }
-
 
 /**
  * Returns a string with the first letter uppercased
@@ -1005,268 +970,207 @@ function upperCaseFirstLetter(str) {
 
 // @ts-check
 
-
 /** @type {import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]} */
 let table_schema = [];
 
-const reload_db_list_button = document.getElementById("reload_db_list_button");
-const reload_table_list_button = document.getElementById(
-    "reload_table_list_button"
-);
-const render_raw_json_button = document.getElementById(
-    "render_raw_json_button"
-);
-const render_js_objects_button = document.getElementById(
-    "render_js_objects_button"
-);
-
-const render_js_class_button = document.getElementById(
-    "render_js_class_button"
-);
-
-const database_list_area = document.getElementById("database_list_area");
-const table_list_area = document.getElementById("table_list_area");
-
+// DOM elements
+const reload_db_list_button = document.getElementById('reload_db_list_button');
+const reload_table_list_button = document.getElementById('reload_table_list_button');
+const render_raw_json_button = document.getElementById('render_raw_json_button');
+const render_js_objects_button = document.getElementById('render_js_objects_button');
+const render_js_class_button = document.getElementById('render_js_class_button');
+const database_list_area = document.getElementById('database_list_area');
+const table_list_area = document.getElementById('table_list_area');
 const output_textarea = /** @type {HTMLTextAreaElement} */ (
-    document.getElementById("output_textarea")
+    document.getElementById('output_textarea')
 );
-
-const check_all_button = document.getElementById("check_all_button");
-const uncheck_all_button = document.getElementById("uncheck_all_button");
+const stats_textarea = /** @type {HTMLTextAreaElement} */ (
+    document.getElementById('stats_output_textarea')
+);
+const check_all_button = document.getElementById('check_all_button');
+const uncheck_all_button = document.getElementById('uncheck_all_button');
+const render_stats_button = document.getElementById('render_stats_button');
 
 /**
- *
  * @param {string[]} list
  */
 function createDataBaseList(list) {
     let body = [];
-    let head = `<div class="list-group">`;
-    let tail = `</div>`;
-
     for (let i = 0; i < list.length; i++) {
         let text = escapeHtml(list[i]);
-        body.push(
-            `<a href="#" class="list-group-item list-group-item-action" >${text}</a>`
-        );
+        body.push(`<a href="#" class="list-group-item list-group-item-action">${text}</a>`);
     }
-
-    let html = [head, body.join("\n"), tail].join("\n");
-    return html;
+    return `<div class="list-group">${body.join('\n')}</div>`;
 }
 
 function getActiveDataBase() {
     if (!database_list_area) return false;
     let active_element = /** @type {HTMLElement} */ (
-        database_list_area.querySelector(".list-group-item.active")
+        database_list_area.querySelector('.list-group-item.active')
     );
     return active_element ? active_element.innerText : false;
 }
 
 /**
- *
- * @param {import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]} table_schema
+ * @param {import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]} schema
  * @returns {string[]}
  */
-function getTablesNamesFromDatabaseSchema(table_schema) {
-    /** @type {Set<string>} */
+function getTablesNamesFromDatabaseSchema(schema) {
     let names = new Set();
-
-    for (let i = 0; i < table_schema.length; i++) {
-        names.add(table_schema[i].TABLE_NAME);
+    for (let i = 0; i < schema.length; i++) {
+        names.add(schema[i].TABLE_NAME);
     }
-
     return Array.from(names);
 }
 
 /**
- *
  * @param {string[]} list
  */
 function createTableList(list) {
     let body = [];
-    let head = `<div class="list-group">`;
-    let tail = `</div>`;
-
     for (let i = 0; i < list.length; i++) {
         let text = escapeHtml(list[i]);
-
         body.push(`
-    <div class="form-check">
-        <label class="form-check-label">
-            <input class="form-check-input" type="checkbox" value="${text}" checked="checked">
-            ${text}
-        </label>
-      </div>`);
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" value="${text}" checked="checked">
+                    ${text}
+                </label>
+            </div>`);
     }
-
-    return [head, body.join("\n"), tail].join("\n");
+    return `<div class="list-group">${body.join('\n')}</div>`;
 }
 
-/**
- * @returns {Promise<import("@supercat1337/mysql-schema-parser").ColumnMetadataRaw[]>}
- */
 async function loadDatabaseSchema() {
     if (!table_list_area) return [];
     let active_database = getActiveDataBase();
-
     if (active_database == false) return [];
-
     let response = await tables_list({
         database_name: active_database,
     });
     if (response.error) {
         alert(response.error);
-        table_list_area.innerHTML = "";
+        table_list_area.innerHTML = '';
         return [];
     }
-
-    if (response.result == null)
-    {
-        return [];
-    }
-
+    if (response.result == null) return [];
     return response.result;
 }
 
 function getCheckedCheckboxes() {
     if (!table_list_area) return [];
-    let checkboxes = table_list_area.querySelectorAll("input[type=checkbox]");
-
-    /** @type {string[]} */
+    let checkboxes = table_list_area.querySelectorAll('input[type=checkbox]');
     let names = [];
-
-    checkboxes.forEach((checkbox) => {
+    checkboxes.forEach(checkbox => {
         // @ts-ignore
         if (checkbox.checked) names.push(checkbox.value);
     });
-
     return names;
 }
 
-reload_db_list_button?.addEventListener("click", async () => {
-    if (!database_list_area) return;
+// Load index statistics for checked tables & current database
+// Inside src/frontend/index.js, replace the existing loadAndRenderIndexStats function
 
-    let response = await database_list();
+async function loadAndRenderIndexStats() {
+    if (!stats_textarea) return;
+    const activeDb = getActiveDataBase();
+    if (!activeDb) {
+        stats_textarea.value = '⚠️ Please select a database first.';
+        return;
+    }
+    const tableNames = getCheckedCheckboxes();
+    if (tableNames.length === 0) {
+        stats_textarea.value = 'ℹ️ No tables selected. Please check at least one table.';
+        return;
+    }
+    stats_textarea.value = '⏳ Loading index statistics...';
+
+    // Send as JSON string to avoid FormData array serialization issues
+    const response = await indexes_list({
+        database_name: activeDb,
+        table_names: JSON.stringify(tableNames), // 👈 convert array to string
+    });
 
     if (response.error) {
+        stats_textarea.value = `❌ Error: ${response.error}`;
+        return;
+    }
+    if (response.result && response.result.length === 0) {
+        stats_textarea.value = '📭 No index information found for selected tables.';
+        return;
+    }
+    stats_textarea.value = JSON.stringify(response.result, null, 2);
+}
+
+// Event handlers
+reload_db_list_button?.addEventListener('click', async () => {
+    if (!database_list_area) return;
+    let response = await database_list();
+    if (response.error) {
         alert(response.error);
-        database_list_area.innerHTML = "";
+        database_list_area.innerHTML = '';
         return;
     }
-
-    if (response.result == null) {
-        return;
-    }
-
+    if (response.result == null) return;
     database_list_area.innerHTML = createDataBaseList(response.result);
 });
 
-reload_table_list_button?.addEventListener("click", async () => {
+reload_table_list_button?.addEventListener('click', async () => {
     if (!table_list_area) return;
-
     table_schema = await loadDatabaseSchema();
-
     let list = getTablesNamesFromDatabaseSchema(table_schema);
     table_list_area.innerHTML = createTableList(list);
 });
 
-check_all_button?.addEventListener("click", () => {
+check_all_button?.addEventListener('click', () => {
     if (!table_list_area) return;
-
-    let checkboxes = table_list_area.querySelectorAll("input[type=checkbox]");
-
-    checkboxes.forEach((checkbox) => {
-        // @ts-ignore
-        checkbox.checked = true;
+    let checkboxes = table_list_area.querySelectorAll('input[type=checkbox]');
+    checkboxes.forEach(cb => {
+        cb.checked = true;
     });
 });
 
-uncheck_all_button?.addEventListener("click", () => {
+uncheck_all_button?.addEventListener('click', () => {
     if (!table_list_area) return;
-
-    let checkboxes = table_list_area.querySelectorAll("input[type=checkbox]");
-
-    checkboxes.forEach((checkbox) => {
-        // @ts-ignore
-        checkbox.checked = false;
+    let checkboxes = table_list_area.querySelectorAll('input[type=checkbox]');
+    checkboxes.forEach(cb => {
+        cb.checked = false;
     });
 });
 
-render_raw_json_button?.addEventListener("click", () => {
+render_stats_button?.addEventListener('click', loadAndRenderIndexStats);
+
+// Schema output rendering (existing)
+function renderSchemaOutput(transformFn) {
     if (!output_textarea) return;
-
     let table_names = getCheckedCheckboxes();
+    let result_schema = table_schema.filter(col => table_names.includes(col.TABLE_NAME));
+    output_textarea.value = transformFn(result_schema);
+}
 
-    let result_schema = [];
-
-    for (let i = 0; i < table_schema.length; i++) {
-        if (!table_schema[i].TABLE_NAME) continue;
-
-        if (table_names.indexOf(table_schema[i].TABLE_NAME) != -1) {
-            result_schema.push(table_schema[i]);
-        }
-    }
-
-    output_textarea.value = JSON.stringify(result_schema, null, "  ");
+render_raw_json_button?.addEventListener('click', () => {
+    renderSchemaOutput(schema => JSON.stringify(schema, null, '  '));
+});
+render_js_class_button?.addEventListener('click', () => {
+    renderSchemaOutput(convertColumnMetadataToJsClassCode);
+});
+render_js_objects_button?.addEventListener('click', () => {
+    renderSchemaOutput(convertColumnMetadataToJsCode);
 });
 
-render_js_class_button?.addEventListener("click", () => {
-    if (!output_textarea) return;
-
-    let table_names = getCheckedCheckboxes();
-
-    let result_schema = [];
-
-    for (let i = 0; i < table_schema.length; i++) {
-        if (!table_schema[i].TABLE_NAME) continue;
-
-        if (table_names.indexOf(table_schema[i].TABLE_NAME) != -1) {
-            result_schema.push(table_schema[i]);
-        }
-    }
-
-    output_textarea.value = convertColumnMetadataToJsClassCode(result_schema);
-});
-
-render_js_objects_button?.addEventListener("click", () => {
-    if (!output_textarea) return;
-
-    let table_names = getCheckedCheckboxes();
-
-    let result_schema = [];
-
-    for (let i = 0; i < table_schema.length; i++) {
-        if (!table_schema[i].TABLE_NAME) continue;
-
-        if (table_names.indexOf(table_schema[i].TABLE_NAME) != -1) {
-            result_schema.push(table_schema[i]);
-        }
-    }
-
-    output_textarea.value = convertColumnMetadataToJsCode(result_schema);
-});
-
-if (database_list_area && table_list_area)
-    delegate_event(
-        "click",
-        database_list_area,
-        ".list-group-item",
-        async (/** @type {MouseEvent} */ event, /** @type {HTMLElement} */ target) => {
-            let active_element = database_list_area.querySelector(
-                ".list-group-item.active"
-            );
-
-            if (target == active_element) return;
-
-            if (active_element) active_element.classList.toggle("active");
-            target.classList.toggle("active");
-
-            output_textarea.value = "";
-            table_schema = await loadDatabaseSchema();
-
-            let list = getTablesNamesFromDatabaseSchema(table_schema);
-            table_list_area.innerHTML = createTableList(list);
-        }
-    );
+// Database click delegation to load tables
+if (database_list_area && table_list_area) {
+    delegate_event('click', database_list_area, '.list-group-item', async (event, target) => {
+        let active_element = database_list_area.querySelector('.list-group-item.active');
+        if (target == active_element) return;
+        if (active_element) active_element.classList.toggle('active');
+        target.classList.toggle('active');
+        output_textarea.value = '';
+        stats_textarea.value = '';
+        table_schema = await loadDatabaseSchema();
+        let list = getTablesNamesFromDatabaseSchema(table_schema);
+        table_list_area.innerHTML = createTableList(list);
+    });
+}
 
 reload_db_list_button?.click();

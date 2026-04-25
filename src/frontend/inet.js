@@ -11,7 +11,7 @@
 const uid = function () {
     return (
         (Date.now() - 1640984400000).toString(36) +
-        "." +
+        '.' +
         (window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295)
             .toString(36)
             .slice(2, 16)
@@ -33,14 +33,14 @@ export function createFormData(method, _params) {
 
     var params = Object.entries(_params);
 
-    if (params.length == 0) params = [["value", 1]];
+    if (params.length == 0) params = [['value', 1]];
 
     var formData = new FormData();
 
-    formData.append("method", method);
+    formData.append('method', method);
 
     for (var i = 0; i < params.length; i++) {
-        formData.append("params[" + params[i][0] + "]", params[i][1]);
+        formData.append('params[' + params[i][0] + ']', params[i][1]);
     }
 
     return formData;
@@ -73,7 +73,7 @@ export function request_prepare(response_callback) {
             }
         } else {
             if (this.status == 0) {
-                response_callback(false, "No Internet");
+                response_callback(false, 'No Internet');
             } else {
                 let error_text = `${this.responseURL} ${this.status} (${this.statusText})`;
                 response_callback(false, error_text);
@@ -94,8 +94,8 @@ export function request_prepare(response_callback) {
  * @param {FormData} formData - The FormData object containing the data to be sent with the request.
  */
 export function request_send(req, formData) {
-    const url = "api?random=" + uid();
-    req.open("POST", url, true);
+    const url = 'api?random=' + uid();
+    req.open('POST', url, true);
 
     try {
         req.send(formData);

@@ -1,6 +1,6 @@
 // @ts-check
 
-import { hasStringDataType } from "./mysql_schema_helpers";
+import { hasStringDataType } from './mysql_schema_helpers';
 
 /**
  * Database column metadata object describing a table column's structure
@@ -63,24 +63,24 @@ import { hasStringDataType } from "./mysql_schema_helpers";
  * @throws {Error} If the object is invalid
  */
 function assertColumnMetadataRaw(obj) {
-    if (typeof obj !== "object" || obj === null) {
-        throw new Error("Input must be a non-null object");
+    if (typeof obj !== 'object' || obj === null) {
+        throw new Error('Input must be a non-null object');
     }
 
     const requiredKeys = [
-        "TABLE_CATALOG",
-        "TABLE_SCHEMA",
-        "TABLE_NAME",
-        "COLUMN_NAME",
-        "ORDINAL_POSITION",
-        "IS_NULLABLE",
-        "DATA_TYPE",
-        "COLUMN_TYPE",
-        "COLUMN_KEY",
-        "EXTRA",
-        "PRIVILEGES",
-        "COLUMN_COMMENT",
-        "IS_GENERATED",
+        'TABLE_CATALOG',
+        'TABLE_SCHEMA',
+        'TABLE_NAME',
+        'COLUMN_NAME',
+        'ORDINAL_POSITION',
+        'IS_NULLABLE',
+        'DATA_TYPE',
+        'COLUMN_TYPE',
+        'COLUMN_KEY',
+        'EXTRA',
+        'PRIVILEGES',
+        'COLUMN_COMMENT',
+        'IS_GENERATED',
     ];
 
     for (const key of requiredKeys) {
@@ -90,79 +90,48 @@ function assertColumnMetadataRaw(obj) {
     }
 
     const validators = {
-        TABLE_CATALOG: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        TABLE_SCHEMA: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        TABLE_NAME: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        COLUMN_NAME: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        ORDINAL_POSITION: (val) =>
-            typeof val === "number" || `Expected number, got ${typeof val}`,
-        COLUMN_DEFAULT: (val) =>
-            val === null ||
-            typeof val === "string" ||
-            `Expected string or null, got ${typeof val}`,
-        IS_NULLABLE: (val) =>
-            val === "YES" ||
-            val === "NO" ||
-            `Expected 'YES' or 'NO', got ${val}`,
-        DATA_TYPE: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        CHARACTER_MAXIMUM_LENGTH: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        CHARACTER_OCTET_LENGTH: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        NUMERIC_PRECISION: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        NUMERIC_SCALE: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        DATETIME_PRECISION: (val) =>
-            val === null ||
-            typeof val === "number" ||
-            `Expected number or null, got ${typeof val}`,
-        CHARACTER_SET_NAME: (val) =>
-            val === null ||
-            typeof val === "string" ||
-            `Expected string or null, got ${typeof val}`,
-        COLLATION_NAME: (val) =>
-            val === null ||
-            typeof val === "string" ||
-            `Expected string or null, got ${typeof val}`,
-        COLUMN_TYPE: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        COLUMN_KEY: (val) =>
-            ["PRI", "UNI", "MUL", ""].includes(val) ||
+        TABLE_CATALOG: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        TABLE_SCHEMA: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        TABLE_NAME: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        COLUMN_NAME: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        ORDINAL_POSITION: val => typeof val === 'number' || `Expected number, got ${typeof val}`,
+        COLUMN_DEFAULT: val =>
+            val === null || typeof val === 'string' || `Expected string or null, got ${typeof val}`,
+        IS_NULLABLE: val => val === 'YES' || val === 'NO' || `Expected 'YES' or 'NO', got ${val}`,
+        DATA_TYPE: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        CHARACTER_MAXIMUM_LENGTH: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        CHARACTER_OCTET_LENGTH: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        NUMERIC_PRECISION: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        NUMERIC_SCALE: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        DATETIME_PRECISION: val =>
+            val === null || typeof val === 'number' || `Expected number or null, got ${typeof val}`,
+        CHARACTER_SET_NAME: val =>
+            val === null || typeof val === 'string' || `Expected string or null, got ${typeof val}`,
+        COLLATION_NAME: val =>
+            val === null || typeof val === 'string' || `Expected string or null, got ${typeof val}`,
+        COLUMN_TYPE: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        COLUMN_KEY: val =>
+            ['PRI', 'UNI', 'MUL', ''].includes(val) ||
             `Expected 'PRI', 'UNI', 'MUL' or empty string, got ${val}`,
-        EXTRA: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        PRIVILEGES: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        COLUMN_COMMENT: (val) =>
-            typeof val === "string" || `Expected string, got ${typeof val}`,
-        IS_GENERATED: (val) =>
-            val === "NEVER" ||
-            val === "ALWAYS" ||
-            typeof val === "string" ||
+        EXTRA: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        PRIVILEGES: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        COLUMN_COMMENT: val => typeof val === 'string' || `Expected string, got ${typeof val}`,
+        IS_GENERATED: val =>
+            val === 'NEVER' ||
+            val === 'ALWAYS' ||
+            typeof val === 'string' ||
             `Expected 'NEVER', 'ALWAYS' or string, got ${val}`,
-        GENERATION_EXPRESSION: (val) =>
-            val === null ||
-            typeof val === "string" ||
-            `Expected string or null, got ${typeof val}`,
+        GENERATION_EXPRESSION: val =>
+            val === null || typeof val === 'string' || `Expected string or null, got ${typeof val}`,
     };
 
     for (const [key, validator] of Object.entries(validators)) {
         const validationResult = validator(obj[key]);
-        if (typeof validationResult === "string") {
+        if (typeof validationResult === 'string') {
             throw new Error(`Invalid ${key}: ${validationResult}`);
         }
     }
@@ -373,7 +342,7 @@ class MySQLTableColumn {
      * @returns {boolean}
      */
     isPrimaryKey() {
-        return this.columnKey === "PRI";
+        return this.columnKey === 'PRI';
     }
 
     /**
@@ -381,7 +350,7 @@ class MySQLTableColumn {
      * @returns {boolean}
      */
     allowsNull() {
-        return this.isNullable === "YES";
+        return this.isNullable === 'YES';
     }
 
     /**
@@ -389,7 +358,7 @@ class MySQLTableColumn {
      * @returns {boolean}
      */
     isAutoIncrement() {
-        return this.extra.includes("auto_increment");
+        return this.extra.includes('auto_increment');
     }
 
     /**
@@ -399,9 +368,9 @@ class MySQLTableColumn {
     getColumnDefinition() {
         return (
             `${this.columnName} ${this.columnType}` +
-            (this.isPrimaryKey() ? " PRIMARY KEY" : "") +
-            (this.isAutoIncrement() ? " AUTO_INCREMENT" : "") +
-            (this.allowsNull() ? "" : " NOT NULL")
+            (this.isPrimaryKey() ? ' PRIMARY KEY' : '') +
+            (this.isAutoIncrement() ? ' AUTO_INCREMENT' : '') +
+            (this.allowsNull() ? '' : ' NOT NULL')
         );
     }
 
@@ -523,7 +492,7 @@ class MySQLTable {
 
             // NOT NULL
             if (!column.allowsNull()) {
-                definition += " NOT NULL";
+                definition += ' NOT NULL';
             }
 
             // DEFAULT
@@ -534,14 +503,12 @@ class MySQLTable {
 
             // AUTO_INCREMENT
             if (column.isAutoIncrement()) {
-                definition += " AUTO_INCREMENT";
+                definition += ' AUTO_INCREMENT';
             }
 
             // COMMENT
             if (column.columnComment) {
-                definition += ` COMMENT '${this.#escapeString(
-                    column.columnComment
-                )}'`;
+                definition += ` COMMENT '${this.#escapeString(column.columnComment)}'`;
             }
 
             columnDefinitions.push(definition);
@@ -549,32 +516,29 @@ class MySQLTable {
             // Индексы
             if (column.isPrimaryKey()) {
                 primaryKeys.push(`\`${column.columnName}\``);
-            } else if (column.columnKey === "UNI") {
+            } else if (column.columnKey === 'UNI') {
                 uniqueKeys.push(`\`${column.columnName}\``);
-            } else if (column.columnKey === "MUL") {
+            } else if (column.columnKey === 'MUL') {
                 indexes.push(`\`${column.columnName}\``);
             }
         }
 
         // Добавляем PRIMARY KEY
         if (primaryKeys.length > 0) {
-            columnDefinitions.push(`PRIMARY KEY (${primaryKeys.join(", ")})`);
+            columnDefinitions.push(`PRIMARY KEY (${primaryKeys.join(', ')})`);
         }
 
         // Добавляем UNIQUE ключи
         for (const uniqueCol of uniqueKeys) {
             columnDefinitions.push(
-                `UNIQUE KEY \`${uniqueCol.replace(
-                    /`/g,
-                    ""
-                )}_unique\` (${uniqueCol})`
+                `UNIQUE KEY \`${uniqueCol.replace(/`/g, '')}_unique\` (${uniqueCol})`
             );
         }
 
         // Собираем полный запрос
         let query = `CREATE TABLE \`${this.tableName}\` (\n  `;
-        query += columnDefinitions.join(",\n  ");
-        query += "\n)";
+        query += columnDefinitions.join(',\n  ');
+        query += '\n)';
 
         // Добавляем ENGINE если указан
         if (options.engine) {
@@ -582,12 +546,8 @@ class MySQLTable {
         }
 
         // Добавляем CHARSET и COLLATION
-        const charset =
-            options.charset || columns[0].characterSetName || "utf8mb4";
-        const collation =
-            options.collation ||
-            columns[0].collationName ||
-            "utf8mb4_unicode_ci";
+        const charset = options.charset || columns[0].characterSetName || 'utf8mb4';
+        const collation = options.collation || columns[0].collationName || 'utf8mb4_unicode_ci';
         query += ` DEFAULT CHARSET=${charset} COLLATE=${collation}`;
 
         // Добавляем COMMENT таблицы
@@ -595,7 +555,7 @@ class MySQLTable {
             query += ` COMMENT='${this.#escapeString(options.comment)}'`;
         }
 
-        return query + ";";
+        return query + ';';
     }
 
     /**
@@ -604,27 +564,23 @@ class MySQLTable {
      * @returns {string}
      */
     #formatDefaultValue(column) {
-        if (column.columnDefault === null) return "NULL";
+        if (column.columnDefault === null) return 'NULL';
 
         // Для строковых типов
-        if (
-            ["char", "varchar", "text", "enum", "set"].includes(
-                column.dataType.toLowerCase()
-            )
-        ) {
+        if (['char', 'varchar', 'text', 'enum', 'set'].includes(column.dataType.toLowerCase())) {
             return `'${this.#escapeString(column.columnDefault)}'`;
         }
 
         // Для временных типов
         if (
-            ["timestamp", "datetime"].includes(column.dataType.toLowerCase()) &&
-            column.columnDefault.toUpperCase() === "CURRENT_TIMESTAMP"
+            ['timestamp', 'datetime'].includes(column.dataType.toLowerCase()) &&
+            column.columnDefault.toUpperCase() === 'CURRENT_TIMESTAMP'
         ) {
-            return "CURRENT_TIMESTAMP";
+            return 'CURRENT_TIMESTAMP';
         }
 
         // Для бинарных данных
-        if (["blob", "binary"].includes(column.dataType.toLowerCase())) {
+        if (['blob', 'binary'].includes(column.dataType.toLowerCase())) {
             return `x'${column.columnDefault}'`;
         }
 
@@ -638,14 +594,9 @@ class MySQLTable {
      * @returns {string}
      */
     #escapeString(str) {
-        return str.replace(/'/g, "''").replace(/\\/g, "\\\\");
+        return str.replace(/'/g, "''").replace(/\\/g, '\\\\');
     }
 }
-
-
-
-
-
 
 /**
  *
@@ -654,7 +605,7 @@ class MySQLTable {
  */
 function convertColumnMetadataToJsCode(data) {
     if (data.length === 0) {
-        return "";
+        return '';
     }
 
     let db = new MySQLDatabase(data[0].TABLE_SCHEMA);
@@ -715,9 +666,17 @@ function convertColumnMetadataToJsCode(data) {
         output.push(`};`);
     }
 
-    return output.join("\n");
+    return output.join('\n');
 }
 
+/**
+ *
+ * @param {string} tableName
+ */
+function convertTableNameToJsClassName(tableName) {
+    let result = tableName.split(/_+/g).map(path => upperCaseFirstLetter(path)).join("");
+    return result;
+}
 
 /**
  *
@@ -726,7 +685,7 @@ function convertColumnMetadataToJsCode(data) {
  */
 function convertColumnMetadataToJsClassCode(data) {
     if (data.length === 0) {
-        return "";
+        return '';
     }
 
     let db = new MySQLDatabase(data[0].TABLE_SCHEMA);
@@ -744,33 +703,34 @@ function convertColumnMetadataToJsClassCode(data) {
         table.addColumn(column);
     }
 
-    let output = [
-        ``,
-    ];
+    let output = [``];
 
     for (let table of db.tables.values()) {
-        output.push(`export class ${upperCaseFirstLetter(table.tableName)}Item {`);
+        output.push(`export class ${convertTableNameToJsClassName(table.tableName)}Item {`);
         for (let column of table.getColumns()) {
-            output.push(`    /** @type {${hasStringDataType(column) ? "string" : "number"}} */`);
-            output.push(`    ${column.columnName};`);            
+            output.push(`    /** @type {${hasStringDataType(column) ? 'string' : 'number'}} */`);
+            output.push(`    ${column.columnName};`);
         }
 
         output.push(`    constructor(data) {`);
         for (let column of table.getColumns()) {
             if (hasStringDataType(column)) {
-                output.push(`        this.${column.columnName} = String(data.${column.columnName});`);
+                output.push(
+                    `        this.${column.columnName} = String(data.${column.columnName});`
+                );
             } else {
-                output.push(`        this.${column.columnName} = Number(data.${column.columnName});`);
+                output.push(
+                    `        this.${column.columnName} = Number(data.${column.columnName});`
+                );
             }
         }
-        output.push(`    }`);            
+        output.push(`    }`);
 
         output.push(`};`);
     }
 
-    return output.join("\n");
+    return output.join('\n');
 }
-
 
 /**
  * Returns a string with the first letter uppercased
